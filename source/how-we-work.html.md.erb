@@ -1,7 +1,7 @@
 ---
 title: How We Work
 weight: 10
-last_reviewed_on: 2026-08-11
+last_reviewed_on: 2026-08-13
 review_in: 6 months
 ---
 
@@ -28,14 +28,66 @@ Platform Operations currently covers services for DSO and Probations. Queries re
 
 Our Jira board is used to track current sprint tickets, backlog priorities and epics.
 
-
 ## Writing Stories
 
-What makes a good story?
-How do we point our tickets?
+### What makes a good story?
+
+A good story should contain the following:
+
+- Summary: A brief summary that outlines what the ticket aims to achieve, and why
+- Description: A more detailed description of the work to be done
+- Acceptance Criteria: The criteria that needs to be met for the task to be considered "done"
+
+As an example, assume that we have a task to grant access to the CIDR range X.X.X.X/32 for one of our projects in AWS:
+
+#### Summary
+
+As a Platform Operations Engineer
+
+I want to add an ingress rule to Security Group X within AWS Account Y
+
+So that I can grant access to users within the X.X.X.X/32 range
+
+#### Description
+
+We need to grant access to users within the CIDR range X.X.X.X/32 for project Y, so that they can gain access to the application. We will need to make this change via Terraform, and receive confirmation from the users that they can access the application as expected.
+
+*(And then provide any other relevant information, e.g. documentation links, screenshots, previous tickets, repositories etc)*
+
+#### Acceptance Criteria
+
+- Security Group X within AWS Account Y is updated via Terraform (to grant access to X.X.X.X/32)
+- Users within the CIDR range X.X.X.X/32 confirm that they can access the application as expected
+
+### Story Points
+
+Story points are allocated to our JIRA tickets, and are used to measure the effort/complexity of each task:
+
+| Story Points                          | Definition                                                                                                                                                                                                                                            |
+|---------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1                                     | I know exactly the code I would write if I went back to my desk right now, there is no significant testing required (Example: Simple config change, adding a user etc)                                                                                |
+| 2                                     | I know what is required, and there are existing examples to rely on. I have done something previously in this area (Example: Straightforward Deployment)                                                                                              |
+| 3                                     | I will probably have to look a few things up, and maybe consult others. There are some unknowns going in, and any changes will have to be tested                                                                                                      |
+| 5                                     | I only have a vague idea of how to do this, some unknowns may appear that could take more time. Requires significant testing, co-ordination and review. There are several components being changed - but this should be achievable within a sprint    |
+| 8                                     | Someone who knows this domain better should split this up into discrete stories that deliver values incrementally                                                                                                                                     |
 
 ## Reviews & PRs
 
 ## Support Rota
 
 ## Want to add a new page?
+
+Assuming that you are part of the Platform Operations Github Team, you can add a new page to this repository by:
+
+- Creating a new filename.html.md.erb file within the [source directory](https://github.com/ministryofjustice/platform-operations/tree/main/source)
+- Raising a pull request and getting a team member to review it (this is usually best achieved by reaching out in the internal team channel as listed towards the top of this document)
+- Once you have merged the pull request, monitor the [publish](https://github.com/ministryofjustice/platform-operations/actions/workflows/publish.yml) github action
+
+Once the Github Action has passed successfully, you should be able to see your page live on the [Platform Operations Runbooks](https://ministryofjustice.github.io/platform-operations/) site.
+
+Please ensure your file contains the following at the top:
+
+- Title: The title for the page
+- Weight: The priority to give to the page (this is then used to order pages on the left hand side)
+- Last Reviewed: When the page was last updated
+- Review In: When the page should next be reviewed
