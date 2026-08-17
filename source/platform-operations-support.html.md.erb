@@ -15,7 +15,11 @@ review_in: 6 months
 
 We have a daily support rota for the Platform Operations team, with both **Primary** and **Secondary** roles. These roles are responsible for acknowledging and triaging support requests, and monitoring the Slack alert channels and PagerDuty for any health issues or incidents.
 
-It is not expected that support team members will always be able to resolve all issues, but they should respond, and escalate issues to the appropriate team members where necessary.
+A daily [Github Actions build](https://github.com/ministryofjustice/hosting-migrations/blob/main/.github/workflows/concierge-to-slack.yml) will assign and notify in Slack each day's Primary and Secondary support team members. 
+
+We use Slack emojis to indicate our assigned Support Role status. Primary is <img src="/images/platops-platypus.png" alt=":platops-platypus:" style="height: 1.1em; vertical-align: text-bottom;"> `:platops-platypus:`, Secondary is <img src="/images/octopus.png" alt=":octopus:" style="height: 1.1em; vertical-align: text-bottom;"> `:octopus:`.
+
+> **Note:** It is not expected that support team members will always be able to resolve all issues, but they should respond, and escalate issues to the appropriate team members where necessary.
 
 ### Support tickets
 
@@ -26,3 +30,5 @@ Some support requests or platform alerts may require a considerable investment o
 - An issue or request that is likely to remain open for more than a day, to allow handover to be documented and for the next support team member to pick up the ticket.
 
 - A routine, regular task that has not yet been either automated or added to the runbooks, and requires a support team member to perform the task manually. Documenting the process should be covered as part of the created ticket.
+
+If you want to add a support ticket in the Platform Operations Jira board, create it under parent [EPIC `PlatOps Support Rota & Ad-Hoc Requests`](https://dsdmoj.atlassian.net/browse/PLAT-149) and assign/place in sprint appropriately.
