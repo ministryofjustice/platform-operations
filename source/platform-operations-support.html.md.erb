@@ -11,13 +11,44 @@ review_in: 6 months
 
 > **Work in progress** - In these early stages of the Platform Operations team, we are still defining the support role and responsibilities. This page will be updated as we continue to refine our support processes.
 
-### Daily Concierge duties
+### Allocating Engineers for Support
 
-We have a daily support rota for the Platform Operations team, with both **Primary** and **Secondary** roles. These roles are responsible for acknowledging and triaging support requests, and monitoring the Slack alert channels and PagerDuty for any health issues or incidents.
+We have a [daily support rota](https://moj-digital-tools.pagerduty.com/schedules/PAA4DKR) for the Platform Operations team, with both **Primary** and **Secondary** roles.
 
-A daily [Github Actions build](https://github.com/ministryofjustice/hosting-migrations/blob/main/.github/workflows/concierge-to-slack.yml) will assign and notify in Slack each day's Primary and Secondary support team members. 
+- **Primary Engineer:** The primary point of contact for support on a given day - they should be the first to respond to support queries/alerts etc
+- **Secondary Engineer:** Can be used as a point of escalation/support for the primary engineer, and may also cover for the Primary Engineer if they are temporarily unavailable
+
+These roles are responsible for:
+
+- Acknowledging and triaging support requests
+- Monitoring the Slack alert channels
+- Monitoring PagerDuty for any health issues or incidents.
+
+A daily [Github Actions build](https://github.com/ministryofjustice/hosting-migrations/blob/main/.github/workflows/concierge-to-slack.yml) will detect the allocated Primary/Secondary Engineers for the day, and will leverage the [#internal-platform-operations](https://moj.enterprise.slack.com/archives/C0B8HUJCK7S) channel to notify us of who they are.
+If you are the Primary or Secondary Engineer for the day, please respond with a <img src="/images/white-tick.png" alt=":white-tick:" style="height: 1.1em; vertical-align: text-bottom;"> `:white_tick:` emoji.
 
 We use Slack emojis to indicate our assigned Support Role status. Primary is <img src="/images/platops-platypus.png" alt=":platops-platypus:" style="height: 1.1em; vertical-align: text-bottom;"> `:platops-platypus:`, Secondary is <img src="/images/octopus.png" alt=":octopus:" style="height: 1.1em; vertical-align: text-bottom;"> `:octopus:`.
+
+If you are the allocated engineer, but you are unable to fulfill the role for the day, please send a message to the [#internal-platform-operations](https://moj.enterprise.slack.com/archives/C0B8HUJCK7S) channel (tagging `@platform-operations`) and request that someone else takes on the role in your place.
+If the allocated Primary Engineer for the day has to change, please ensure that an override is added to the [daily support rota](https://moj-digital-tools.pagerduty.com/schedules/PAA4DKR), so that the new Primary Engineer is reflected, as this will ensure that they receive any relevant alerts throughout the course of the day.
+
+### Daily Concierge duties
+
+Below are some common support tasks that you would be expected to carry out throughout the course of the day:
+
+- **NDST Standup:** The Primary and Secondary Engineers should join the NDST Standup at 10:00am. This allows us to communicate with the relevant stakeholders, provide status updates and respond to any queries that may arise.
+    - NOTE: You do not need to stay for the full duration of the call - once the DRB review begins, you can leave.
+- **Monitor Support Channels:** You should monitor the [public support channels](https://runbooks.platform-operations.service.justice.gov.uk/how-we-work.html#public-support-channels) throughout the day, responding to any queries that may arise.
+- **Montior PagerDuty:** You should monitor PagerDuty throughout the day, responding to any alerts.
+    - Our core support hours run from 9am to 4pm Monday to Friday. Support outside of this hours is on a "best endeavours" basis.
+    - It is also recommended that, at the start of the day, you look at all currently open [incidents](https://moj-digital-tools.pagerduty.com/incidents) and filter by the OCTO Platform Operations team - this will allow you to quickly see if there are any alerts from the previous day (or that may have triggered overnight) that have not yet been escalated.
+- **Dependabot PR Reviews:** Check for any outstanding Dependabot PRs on the following repositories:
+    - [platform-operations](https://github.com/ministryofjustice/platform-operations)
+    - [hosting-migrations](https://github.com/ministryofjustice/hosting-migrations)
+    - [dso-infra-azure-fixngo](https://github.com/ministryofjustice/dso-infra-azure-fixngo)
+    - [dso-infra-azure-ad](https://github.com/ministryofjustice/dso-infra-azure-ad/tree/main)
+- **DSO Infra Azure AD User Management:** On Tuesday mornings, an [automated-user-management](https://github.com/ministryofjustice/dso-infra-azure-ad/blob/main/.github/workflows/automated-user-management.yml) will run - this detects any users who should be marked as "inactive", or any users who should be "deleted", and will generate PRs if appropriate.
+If today is a Tuesday, go to the [dso-infra-azure-ad](https://github.com/ministryofjustice/dso-infra-azure-ad/tree/main), ensure that the workflow has run successfully, and if there are any PRs that have been generated, review them.
 
 > **Note:** It is not expected that support team members will always be able to resolve all issues, but they should respond, and escalate issues to the appropriate team members where necessary.
 
