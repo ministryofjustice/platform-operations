@@ -1,0 +1,54 @@
+---
+title: LDAP Restarts
+weight: 12
+last_reviewed_on: 2026-08-13
+review_in: 6 months
+---
+
+# <%= current_page.data.title %>
+
+## Introduction
+
+LDAP is hosted as a single-task application on AWS ECS Fargate. 
+Unlike applications that run multiple tasks for high availability, LDAP is a single-writer application and must run with only one active task. 
+Running multiple LDAP tasks concurrently can result in data corruption and service instability.
+
+AWS periodically performs routine maintenance on ECS Fargate tasks, including task retirement and replacement. 
+Because Fargate is a fully managed service, these maintenance activities are controlled by AWS and can cause the LDAP task to be restarted or replaced without a schedule that is directly controlled by the application team. 
+For LDAP, this presents an operational risk because the service requires additional steps following a restart.
+
+LDAP also requires **cache warming** after a restart. 
+When the server starts with an empty or cold cache, a sudden increase in authentication, TLS, or directory queries can place a significant load on the server and may cause it to become unstable or crash. 
+The cache-warming process runs a controlled set of queries against LDAP before normal user traffic is allowed to place the full expected load on the service.
+
+This runbook describes the controlled process for restarting the LDAP task and subsequently warming the LDAP cache. 
+The objective is to ensure that restarts are performed in a predictable manner and that LDAP is fully operational and ready to handle normal user traffic following the restart.
+
+*Note: There is an automated process with the intention to replace this manual activity*
+
+## AWS Environment Reference
+
+LDAP is deployed across the following AWS environments:
+
+| Environment   | AWS Account   | ECS Cluster                                             |
+|---------------|---------------|---------------------------------------------------------|
+| Stage/PreProd | --------1417  | delius-core-stage-cluster, delius-core-preprod-cluster  |
+| Production    | --------5573  | delius-core-prod-cluster                                |
+
+## Check the AWS Health Dashboard
+
+Before performing the LDAP restart, check the **AWS Health Dashboard** for any scheduled ECS task maintenance or retirement events.
+These will also come through as Slack notifications, at least a week in advance.
+
+1. Sign in to the AWS console
+2. Navigate to **AWS Health Dashboard**
+3. Open the **Scheduled changes** section
+4. Look for an event relating to ECS task patching or task retirement
+5. Select the relevant event to view the event details
+
+The event details provide information about:
+
+- The reason for the scheduled change
+- The expected maintenance or retirement activity
+- Any actions that need to be taken
+- The affected resources, which idenitfy the ECS resources impacted by the scheduled change
