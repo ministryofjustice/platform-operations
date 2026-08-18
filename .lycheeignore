@@ -5,6 +5,7 @@ http://localhost:4567
 # Links from README
 https://ministryofjustice.github.io/template-documentation-site/legacy-tdt-documentation
 https://github-community.service.justice.gov.uk/repository-standards/template-documentation-site
+https://github-community.service.justice.gov.uk/repository-standards/template-repository
 
 # Links from source/legacy-tdt-documentation
 https://www.larry-the-cat.service.gov.uk
@@ -14,3 +15,8 @@ https://tdt-documentation.london.cloudapps.digital
 https://digitalaccessibilitycentre.org
 https://www.cloud.service.gov.uk
 https://docs.cloud.service.gov.uk
+
+# Links to private Github repos
+https://github.com/ministryofjustice/dso-infra-azure-ad
+https://github.com/ministryofjustice/dso-infra-azure-fixngo
+https://github.com/ministryofjustice/octo-access
