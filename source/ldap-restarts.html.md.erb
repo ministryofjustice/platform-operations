@@ -39,6 +39,26 @@ LDAP is deployed across the following AWS environments:
 
 ---
 
+## Prerequsites
+
+- Disconnect from the VPN for faster response times
+- Login in to AWS in the console via `aws sso login --profile delius-core-[env]`
+    - Ensure the AWS accounts are added to your `config` file. E.g.
+
+```
+[profile delius-core-preproduction]
+sso_start_url = https://moj.awsapps.com/start
+sso_region = eu-west-2
+sso_account_id = #######1417
+sso_role_name = modernisation-platform-developer
+region = eu-west-2
+```
+
+- Ensure you have `ecsgo` installed. If not, run the following commands:
+    - `brew tap tedsmitt/ecsgo` [Official GitHub repo for ecsgo](https://github.com/tedsmitt/ecsgo)
+    - `brew install ecsgo`
+    - You may need to run the command to trust first
+
 ## 1. Check the AWS Health Dashboard
 
 Before performing the LDAP restart, check the **AWS Health Dashboard** for any scheduled ECS task maintenance or retirement events.
@@ -55,7 +75,7 @@ The event details provide information about:
 - The reason for the scheduled change
 - The expected maintenance or retirement activity
 - Any actions that need to be taken
-- The affected resources, which idenitfy the ECS resources impacted by the scheduled change
+- The affected resources, which identify the ECS resources impacted by the scheduled change
 
 ![Container cw-dashbaord-scheduled-changes](/images/health-dashboard.png)
 
@@ -70,7 +90,7 @@ In the **Affected resources** section:
 ![Container dashbaord-affected resources](/images/dashbaord-affected-resources.png)
 
 
-From the clusters, identify the appropriate environmnent, depending on which one you are working on:
+From the clusters, identify the appropriate environment, depending on which one you are working on:
 
 - `delius-core-stage-cluster`
 - `delius-core-preprod-cluster`
@@ -95,7 +115,7 @@ Once you are in the correct ECS cluster:
 
 ## 3. Stop the LDAP Task
 
-The LDAP service nromally has a desired task count of **1**
+The LDAP service normally has a desired task count of **1**
 
 To stop the LDAP task:
 
@@ -129,7 +149,7 @@ The shutdown normally takes approximately 5 minutes, but the actual time may var
 
 Once the previous LDAP task has completely stopped:
 
-1. Return to the ECS **Services** lust
+1. Return to the ECS **Services** view
 2. Select the LDAP service again for the relevant environment by clicking the checkbox
 3. Select **Update**
 4. Change **Desired tasks** from `0` back to `1`
@@ -152,29 +172,6 @@ Monitor the LDAP service until the new task has started successfully:
 
 Once the new LDAP task is running, connect to the container from the terminal to perform the cache-warming procedure
 
-### Preliminary Checks and Steps
-
-- Disconnect from the VPN for faster response times
-- Login in to AWS in the console via `aws sso login --profile delius-core-[env]`
-    - Ensure the AWS accounts are added to your `config` file. E.g.
-
-> [profile delius-core-preproduction]
-
-> sso_start_url = https://moj.awsapps.com/start
-
-> sso_region = eu-west-2
-
-> sso_account_id = #######1417
-
-> sso_role_name = modernisation-platform-developer
-
-> region = eu-west-2
-
-- Ensure you have `ecsgo` installed. If not, run the following commands:
-    - `brew tap tedsmitt/ecsgo`
-    - `brew install ecsgo`
-    - You may need to run the command to trust first
-
 ### Connect to the Correct ECS Environment 
 
 In your terminal, follow the steps below:
@@ -191,36 +188,6 @@ In your terminal, follow the steps below:
 After connecting to the newly started LDAP container, perform the LDAP cache-warming procedure
 
 The cache-warming commands are maintained on the [LDAP - Data migration and cutover from legacy environment to MP confluence page](https://dsdmoj.atlassian.net/wiki/spaces/NH/pages/4589715816/LDAP+-+Data+migration+and+cutover+from+legacy+environment+to+MP#4.-Queries-to-run-to-warm-up-LDAP-server-and-preload-cache-entries)
-
-They are also listed below for your reference:
-
-```
-# query to get all user entries into cache
-# needs root password — this is passed from the environment using `-w` flag
-# alternatively, you can find the admin password in SSM and use -W (uppercase) flag
-
-time ldapsearch -w "$BIND_PASSWORD" -D cn=root,dc=moj,dc=com -LLL -H ldap:// -b ou=users,dc=moj,dc=com '+' '*' > /dev/null
-or
-time ldapsearch -D cn=root,dc=moj,dc=com -W -LLL -H ldap:// -b ou=users,dc=moj,dc=com '+' '*' > /dev/null
-time ldapsearch -w "$BIND_PASSWORD" -D cn=root,dc=moj,dc=com -LLL -b ou=users,dc=moj,dc=com '(|(objectClass=NDRole)(objectClass=NDRoleAssociation))' '+' '*' > /dev/null
-
-# dereferencing alias query
-time ldapsearch -Y EXTERNAL -H ldapi://%2Fvar%2Flib%2Fopenldap%2Frun%2Fldapi -b 'cn=MarcusAspin,ou=Users,dc=moj,dc=com' -s one -a always '(|(objectClass=NDRole)(objectClass=NDRoleAssociation))'
-time ldapsearch -Y EXTERNAL -H ldapi://%2Fvar%2Flib%2Fopenldap%2Frun%2Fldapi -b 'cn=MarcusAspin,ou=Users,dc=moj,dc=com' -s one -a never '(|(objectClass=NDRole)(objectClass=NDRoleAssociation))'
-time ldapsearch -Y EXTERNAL -H ldapi://%2Fvar%2Flib%2Fopenldap%2Frun%2Fldapi -b 'cn=MarcusAspin,ou=Users,dc=moj,dc=com' -s one '(|(objectClass=NDRole)(objectClass=NDRoleAssociation))'
-time ldapsearch -Y external -Q -H ldapi:// -b cn=marcusaspin,ou=users,dc=moj,dc=com objectclass=NDRoleAssociation > /dev/null
-time ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=ndRoleCatalogue,ou=users,dc=moj,dc=com" "(&(objectclass=NDRole)(objectclass=*))"
-
-# and some deref alias queries
-time ldapsearch -H ldapi:// -Y EXTERNAL -Q -LLL -b "ou=Groups,dc=moj,dc=com" | grep -c ^dn:
-time ldapsearch -H ldapi:// -Y EXTERNAL -Q -LLL -b "ou=Groups,dc=moj,dc=com" -a always | grep -c ^dn:
-time ldapsearch -H ldapi:// -Y EXTERNAL -Q -LLL -b "ou=Groups,dc=moj,dc=com" -a never | grep -c ^dn:
-
-#some user fetch queries to run
-time ldapsearch -Y external -Q -H ldapi:// -LLL -b cn=juu31f,ou=users,dc=moj,dc=com -s one -a always '(|(objectClass=NDRole)(objectClass=NDRoleAssociation))' UIBusinessInteractionCollection Level1 Level2 Level3
-time ldapsearch -Y external -Q -H ldapi:// -LLL -b cn=juu31f,ou=users,dc=moj,dc=com -s base -a always '(objectclass=*)' userHomeArea userSector mail telephoneNumber
-time ldapsearch -Y external -Q -H ldapi:// -LLL -b cn=UserPreferences,cn=juu31f,ou=users,dc=moj,dc=com -s base -a always '(objectclass=*)'
-```
 
 > **Important:** Cache warming is a required part of the LDAP restart procedure. Do not consider the restart is complete until the cache-warming process has successfully completed
 
