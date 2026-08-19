@@ -1,0 +1,33 @@
+---
+title: Azure Entra ID Tasks
+weight: 13
+last_reviewed_on: 2026-08-19
+review_in: 6 months
+---
+
+# <%= current_page.data.title %>
+## About
+
+This runbooks page contains guidance on regular tasks that the Platform Operations support role may be expected to perform in relation to Entra ID (Azure AD) and related services.
+
+### Add user to Entra ID Group for NOMIS Modernisation Platform SSO
+
+These requests are typically raised via the [#ask-digital-studio-ops](https://moj.enterprise.slack.com/archives/C6D94J81E) Slack channel, and should be actioned by the support engineer on duty.
+
+#### Steps
+
+- Log into the [Azure Portal](https://portal.azure.com/#home)
+
+- In user profile (top right) select **Switch Directory** and select the **Ministry of Justice** directory from list below. Hit `Switch`.
+
+- Select Microsoft Entra ID, and then select **Groups** from the left-hand menu.
+
+- In the search bar, add `azure-aws-sso-nomis-access` and select the group from the results.
+
+- Navigate to **Users**, and then select `+ Add members` from the top menu.
+
+- Drop the provided username in the search bar, tick the checkbox next to the user, and select **Select** from the bottom menu.
+
+Once added, inform the user that they may have to wait as long as 6 hours for the change to take effect. 
+
+
