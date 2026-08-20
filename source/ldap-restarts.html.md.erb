@@ -26,6 +26,8 @@ The objective is to ensure that restarts are performed in a predictable manner a
 
 *Note: There is an automated process with the intention to replace this manual activity*
 
+---
+
 ## AWS Environment Reference
 
 LDAP is deployed across the following AWS environments:
@@ -35,7 +37,29 @@ LDAP is deployed across the following AWS environments:
 | Stage/PreProd | --------1417  | delius-core-stage-cluster, delius-core-preprod-cluster  |
 | Production    | --------5573  | delius-core-prod-cluster                                |
 
-## Check the AWS Health Dashboard
+---
+
+## Prerequsites
+
+- Disconnect from the VPN for faster response times
+- Login in to AWS in the console via `aws sso login --profile delius-core-[env]`
+    - Ensure the AWS accounts are added to your `config` file. E.g.
+
+```
+[profile delius-core-preproduction]
+sso_start_url = https://moj.awsapps.com/start
+sso_region = eu-west-2
+sso_account_id = #######1417
+sso_role_name = modernisation-platform-developer
+region = eu-west-2
+```
+
+- Ensure you have `ecsgo` installed. If not, run the following commands:
+    - `brew tap tedsmitt/ecsgo` [Official GitHub repo for ecsgo](https://github.com/tedsmitt/ecsgo)
+    - `brew install ecsgo`
+    - You may need to run the command to trust first
+
+## 1. Check the AWS Health Dashboard
 
 Before performing the LDAP restart, check the **AWS Health Dashboard** for any scheduled ECS task maintenance or retirement events.
 These will also come through as Slack notifications, at least a week in advance.
@@ -51,4 +75,133 @@ The event details provide information about:
 - The reason for the scheduled change
 - The expected maintenance or retirement activity
 - Any actions that need to be taken
-- The affected resources, which idenitfy the ECS resources impacted by the scheduled change
+- The affected resources, which identify the ECS resources impacted by the scheduled change
+
+![Container cw-dashbaord-scheduled-changes](/images/health-dashboard.png)
+
+### Identify the LDAP Resource
+
+In the **Affected resources** section:
+
+1. Loacte the LDAP resource
+2. Select the LDAP resource
+3. This will take you to the relevant ECS cluster
+
+![Container dashbaord-affected resources](/images/dashbaord-affected-resources.png)
+
+
+From the clusters, identify the appropriate environment, depending on which one you are working on:
+
+- `delius-core-stage-cluster`
+- `delius-core-preprod-cluster`
+- `delius-core-prod-cluster`
+
+---
+
+## 2. Open the LDAP ECS Service
+
+Once you are in the correct ECS cluster:
+
+1. Select **Services**
+2. Locate the LDAP service for the relevant environment:
+- `stage-ldap`
+- `preprod-ldap`
+- `prod-ldap`
+3. Select the LDAP service by clicking the checkbox
+
+![Container ecs-select-service](/images/ecs-select-service.png)
+
+---
+
+## 3. Stop the LDAP Task
+
+The LDAP service normally has a desired task count of **1**
+
+To stop the LDAP task:
+
+1. From the previous steps, you should have the LDAP service selected
+2. Click on the **Update** button
+3. Locate **Desired tasks**
+4. Change the desired task count from `1` to `0`
+5. Select **Update** at the bottom of the page to apply the change
+
+This will stop the LDAP ECS task
+
+![Container update-desired-tasks](/images/update-desired-tasks.png)
+
+### Wait for the Task to Stop
+
+After updating the service:
+
+1. Monitor the LDAP tasks status in the **Tasks** tab
+2. Wait for the existing task to transition through its deactivating > stopping state
+3. Confirm that the task has **fully stopped** before continuing 
+
+The shutdown normally takes approximately 5 minutes, but the actual time may vary
+
+> **Important:** Do not restart the LDAP task until the previous task has completely stopped
+
+![Container stopped-task](/images/stopped-task.png)
+
+---
+
+## 4. Restart the LDAP Task
+
+Once the previous LDAP task has completely stopped:
+
+1. Return to the ECS **Services** view
+2. Select the LDAP service again for the relevant environment by clicking the checkbox
+3. Select **Update**
+4. Change **Desired tasks** from `0` back to `1`
+5. Select **Update** at the bottom of the page
+
+This will cause ECS to launch a new LDAP task
+
+### Confirm the New Task Is Running
+
+Monitor the LDAP service until the new task has started successfully:
+
+1. Go to the **Tasks** tab
+2. Check the task is **running**
+
+![Container task-running](/images/task-running.png)
+
+---
+
+## 5. Connect to the LDAP Container
+
+Once the new LDAP task is running, connect to the container from the terminal to perform the cache-warming procedure
+
+### Connect to the Correct ECS Environment 
+
+In your terminal, follow the steps below:
+
+![Container select-cluster](/images/select-stage-cluster.png)
+![Container select-service](/images/select-service.png)
+![Container select-task](/images/select-task.png)
+![Container start-session-bash](/images/start-session-bash.png)
+
+---
+
+## 6. Cache-Warming Process
+
+After connecting to the newly started LDAP container, perform the LDAP cache-warming procedure
+
+The cache-warming commands are maintained on the [LDAP - Data migration and cutover from legacy environment to MP confluence page](https://dsdmoj.atlassian.net/wiki/spaces/NH/pages/4589715816/LDAP+-+Data+migration+and+cutover+from+legacy+environment+to+MP#4.-Queries-to-run-to-warm-up-LDAP-server-and-preload-cache-entries)
+
+> **Important:** Cache warming is a required part of the LDAP restart procedure. Do not consider the restart is complete until the cache-warming process has successfully completed
+
+--- 
+
+## 7. Verify LDAP is Operational
+
+After cache warming has completed, verify that the LDAP service is operating normally
+
+Confirm that:
+
+- The ECS service has **1 desired task**
+- The LDAP task is **running**
+- The task is healhty
+- Cache warming completed successfully
+- There are no unexpected errors or task restarts
+
