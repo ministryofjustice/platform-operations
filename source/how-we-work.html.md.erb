@@ -60,6 +60,8 @@ A good story should contain the following:
 - Summary: A brief summary that outlines what the ticket aims to achieve, and why
 - Description: A more detailed description of the work to be done
 - Acceptance Criteria: The criteria that needs to be met for the task to be considered "done"
+- Engineering Steps: What steps the engineer needs to make to implement the changes
+- Documentation Links: documents in Confluence, for example, that include guidance on how to complete the task, or aspects of the task
 
 As an example, assume that we have a task to grant access to the CIDR range X.X.X.X/32 for one of our projects in AWS:
 
@@ -102,6 +104,41 @@ Story points are allocated to our JIRA tickets, and are used to measure the effo
 
 
 ## Reviews & PRs
+
+All changes should be raised through a Pull Request (PR) and reviewed by another engineer before being merged
+
+### Raising a Pull Request
+
+The engineer making the change should:
+
+1. Create a PR with a clear description of the change and why it is required - a link to the ticket it relates to is helpful
+2. Ensure the PR contains all relevant changes and does not include unrelated modifications
+3. Request a review in the #internal-platform-operations Slack channel.
+4. Include a link to the PR in the Slack request
+
+### Reviewing a Pull Request
+
+The reviewer should review the PR to ensure that:
+
+- The change addresses the stated requirement or issue
+- The implementation is correct and follows existing patterns and standard
+- The change is appropriately scoped and does not contain unrelated changes
+- Configuration, infrastructure, or application changes are safe and appropriate
+- There are no obvious security concerns or unintended access changes
+- Naming, formatting, and documentation follow the conventions of the repository
+- Tests or validation have been completed where appropriate
+- Any relevant deployment, rollback, or operational considerations have been considered
+- The PR description provides enough context to understand the change
+
+If changes are required, the reviewer should leave clear comments on the PR. The requester should address the feedback and request another review where necessary.
+
+### Approval and Merge
+
+Once the reviewer is satisfied with the changes, they should **approve the PR**.
+
+The requester is responsible for monitoring the PR and, once the required approval has been received and any checks have passed, **merging the PR in a timely manner**.
+
+The requester should not leave approved PRs unnecessarily open, as this can delay delivery and leave changes in an incomplete state
 
 ---
 
