@@ -9,4 +9,3 @@ env/
 *.sha256
 terraform.tfstate
 *.idea
-.cspell
