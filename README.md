@@ -13,6 +13,10 @@ The Platform Operations team is responsible for:
 
 We work closely with DBAs, Application Support Teams, HMPPS Devs, NART and the Modernisation Platform Team.
 
+## Platform Operations Runbooks
+
+Our team documentation and runbooks are hosted on GitHub Pages following the common tech docs GDS approach and can be found [here](https://runbooks.platform-operations.service.justice.gov.uk/).
+
 ## Useful repository links
 
 | Name                                                                                                                                    | Description                                                                                        |
