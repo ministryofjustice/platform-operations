@@ -1,0 +1,150 @@
+---
+title: Adding Users to Probation AWS Account
+weight: 14
+last_reviewed_on: 2026-08-19
+review_in: 6 months
+---
+
+# <%= current_page.data.title %>
+## Introduction
+
+The Probation AWS account is a legacy AWS environment where user access is managed through IAM rather than AWS SSO.
+
+User access is managed as code through the [hmpps-security-access-terraform](https://github.com/ministryofjustice/hmpps-security-access-terraform) repository. 
+
+This runbook describes how to add a new user to the account and assign the appropriate access based on their role.
+
+### Prerequisites
+
+- Ensure you are able to run terraform locally and have the legacy accounts in your AWS config
+    - Follow the instruction in this Confluence page: [Running Terraform Locally in Legacy Accounts](https://dsdmoj.atlassian.net/wiki/spaces/NH/pages/3834708052/Running+Terraform+locally+in+legacy+accounts?xpis=eyJicmlkZ2UiOiJxdWlja0ZpbmQiLCJpZCI6IjE3ODcxODA1MjQ2ODIiLCJzb3VyY2UiOiJjb25mbHVlbmNlIn0%3D)
+- Log in to the Probations AWS account in your CLI
+
+## 1. Determine the User's Required Access
+
+Before making any changes, confirm what level of access the user requires.
+
+Review the existing IAM groups in the Terraform repository and identify the groups that correspond to the user's role.
+
+For example:
+
+- **MOJ Developers** - developer access.
+- **MFA** - required for users with administrative access.
+- Other groups as required by the user's role.
+
+Where possible, use an existing user with the same or a similar role as a reference.
+
+> **Important:** Do not grant additional access unless it has been requested and approved.
+
+---
+
+## 2. Update the Terraform Repository
+
+User access is managed in the [hmpps-security-access-terraform](https://github.com/ministryofjustice/hmpps-security-access-terraform) repository.
+
+If you do not already have the repository locally, clone it using the standard repository setup process.
+
+If you already have a local copy, make sure it is up to date before making changes and then checkout a new branch.
+
+e.g.
+
+```
+git pull
+git checkout -b add-user-[name]
+```
+
+## 3. Create the User Module
+
+Create a new Terraform module for the user in the [user-groups/users.tf](https://github.com/ministryofjustice/hmpps-security-access-terraform/blob/main/user-groups/users.tf) file:
+
+```
+module "JohnDoe" {
+  source       = "../modules/user"
+  username     = "JohnDoe"
+  emailaddress = "John.Doe@justice.gov.uk"
+  jobrole      = "DevOps Engineer"
+  organisation = "Platform Operations"
+```
+
+## 4. Add the User to the Required Groups
+
+Add the user to each IAM group required for their role.
+
+For example, a user who requires developer and administrative access may need to be added to:
+
+- `user-groups/group-Admins.tf`
+- `user-groups/group-MFA.tf`
+- `user-groups/group-MoJDevelopers.tf`
+
+Review the existing group configuration in the repository and add the user in the appropriate locations.
+
+### Gain Approval for changes
+
+Before applying the changes, push the changes on your branch to GitHub and create a pull request. Gain approval for your changes before proceeding. 
+
+Merge the changes into main after the following steps.
+
+## 5. Run Terraform Locally
+
+### Terraform Plan
+
+ Run a Terraform plan locally to validate the configuration and review the proposed changes.
+
+ Follow the terraform local execution guide using the [documentation]((https://dsdmoj.atlassian.net/wiki/spaces/NH/pages/3834708052/Running+Terraform+locally+in+legacy+accounts?xpis=eyJicmlkZ2UiOiJxdWlja0ZpbmQiLCJpZCI6IjE3ODcxODA1MjQ2ODIiLCJzb3VyY2UiOiJjb25mbHVlbmNlIn0%3D)) . E.g.
+
+ ```
+ hmpps-security-access-terraform [add-user-(name)] $ ENVIRONMENT=sec-access COMPONENT=user-groups tg13 plan
+ ```
+
+- Review the output carefully
+- Confirm that the expected IAM user and group changes are present
+- Confirm that there are no unexpected changes to users or resources
+
+> **Important**: Do not proceed if the Terraform plan contains unexpected changes. Investigate the differences before applying.
+
+### Terraform Apply
+
+Once the Terraform plan has been reviewed and the changes have been confirmed, apply the Terraform configuration. Again, following the terraform local execution guide. E.g.
+
+ ```
+ hmpps-security-access-terraform [add-user-(name)] $ ENVIRONMENT=sec-access COMPONENT=user-groups tg13 apply
+ ```
+
+ After the apply completes, confirm that the Terraform output shows changes have been applied successfully.
+
+ Also, check in IAM console that the user has been created.
+
+ These changes can now be merged into the the main branch.
+
+## 6. Generate and Provide the User's Initial Password
+
+Once the Terraform changes have been successfully applied, generate the user's initial IAM password.
+
+1. Open the **AWS IAM Console**.
+2. Navigate to **Users**.
+3. Select the newly created user.
+4. Select **Security credentials**.
+5. Generate a new console password for the user.
+6. Ensure that **User must create a new password at next sign-in** is enabled.
+7. Download the generated credentials as a **CSV file**.
+
+### Compress the Credentials File
+
+- Compress the downloaded CSV file before sending it to the user.
+- Ensure that the compressed file contains only the credentials for the intended user.
+- Send the Credentials to the User with the compressed credentials file to the user via Outlook.
+
+Before sending:
+
+* Confirm the recipient’s email address.
+* Confirm that the attachment belongs to the intended user.
+* Do not send the credentials to a shared mailbox or distribution list.
+* Do not include the password in the email body.
+* Inform user that they must set up MFA once they have signed in.
+
+After sending the credentials, securely delete the local CSV and compressed files. 
+
+Treat the credentials file as a password. Do not send it through an unapproved channel or retain unnecessary copies.
+ 
+
+
