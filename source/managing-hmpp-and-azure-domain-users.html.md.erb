@@ -1,0 +1,86 @@
+---
+title: Managing HMPP and Azure Domain Users
+weight: 14
+last_reviewed_on: 2026-08-21
+review_in: 6 months
+---
+
+# <%= current_page.data.title %>
+
+DSO maintain two active directory domains:
+
+- **azure.noms.root (AZURE)** - used for DevTest environments
+- **azure.hmpp.root (HMPP)** - used for Production environments (including LSAST and Pre-Production)
+
+Accounts are required by users in order to Remote Desktop into Windows Servers in AWS (e.g. Jumpservers) - these jumpservers are often used for:
+
+- Accessing NOMIS Forms Frontend
+- Accessing CSR
+- Business objects reporting (e.g. nomis and oasys) client tools
+- Management of AZURE and HMPP domains
+- SQL Developer (if not convenient to install on your local device)
+- PGP Encryption (Prod only) for manually encrypting files (to attach to emails etc)
+
+Historically, these have also been used to:
+
+- Log into servers within the Azure FixNGo estate (e.g. jumpservers)
+- Access SSH Bastions in Azure (including tunneling to DBs)
+
+This page provides guidance on:
+
+- [How to connect to a JumpServer](#connecting-to-a-jump-server)
+- [How to create and delete users](#how-to-create-and-delete-users)
+- [How to reset user passwords](#how-to-reset-user-passwords)
+
+### Connecting to a Jump Server
+
+There are two ways to connect to a Jump Server:
+
+- [Connecting via AWS Fleet Manager](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/5603557440/HMPPS+Jump+Servers+in+Modernisation+Platform)
+- [Connecting via Remote Desktop](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/5603557440/HMPPS+Jump+Servers+in+Modernisation+Platform)
+
+### How to create and delete users
+
+In order to create or delete a user, you must first have an existing account with the relevant permissions to create or delete users in the appropriate domain. If you are a PlatOps team member
+and do not have an account, please contact the [#internal-platform-operations](https://moj.enterprise.slack.com/archives/C0B8HUJCK7S) channel (tagging `@platform-operations`).
+
+Once you have an account, and have [connected to a Jump Server](#connecting-to-a-jump-server), you can use the following steps to create a user:
+
+- Search for "Active Directory Users and Computers"
+- Expand the **AZURE.[DOMAIN].ROOT** tab
+    - If you are connected to AZURE/, go to NOMS RBAC > Users
+    - If you are connected to HMPP/, go to RBAC > Users
+- Find the relevant folder to add the user in to
+    - If you are unsure, try to find a team member with AD access and add them to the same folder
+    - When you create the user, you will need to create a password for them. Set the password, and keep a note of it, as you will need to supply the password to the user.
+- Once you have created the user, right click on their profile, select "Properties" and then select the "Member Of" tab. This will show you all the groups that the user is a member of
+    - You can add them to any additional groups as required.
+    - In most instances, you should just need to add the user to the HmppsJump2022 group
+
+As a PlatOps team member, your user account must be a member of the appropriate groups in order to perform the above actions. If you need to verify what groups you are a member of, find your account profile by right clicking on **AZURE.[DOMAIN].ROOT** within AD Users and Computers,
+selecting "Find" and searching for your name.
+
+Once you find your profile, right click on it, select "Properties" and then select the "Member Of" tab. This will show you all the groups that you are a member of. As per the above, please contact a PlatOps team
+member if you require additional permissions.
+
+If you wish to delete a user, you can use the same "Find" functionality as above to locate the user, right click on their profile and select "Delete". You will be prompted to confirm the deletion.
+
+### How to reset user passwords
+
+For password resets, you can also use the same "Find" functionality to find the user, right click on their profile and select "Reset Password". You will be prompted to enter a new password for the user.
+
+Keep a note of it, as you will need to supply the password to the user.
+
+Please note that, if a user knows what their existing password is, they can reset their own password by following [this guide](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/4749918456/DSO+How-To+-+reset+azure.noms.root+or+azure.hmpp.root+password)
+
+> **Sharing Passwords** - In these early stages of the Platform Operations team, we are still defining the support role and responsibilities. As such, we are still defining our preferred process for sharing secrets e.g. user passwords for AD. At present, we prefer to use a tool such as 1Password to supply passwords to users.
+If you are unsure of the best way to supply a password to a user, please reach out in [#internal-platform-operations](https://moj.enterprise.slack.com/archives/C0B8HUJCK7S) channel (tagging `@platform-operations`).
+
+### Additional Documentation
+
+Below are the links to additional documentation, to give further context and insights into the HMPP and AZURE domain usage:
+
+- [FixNGo domains in Modernisation Platform](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/4706697438/FixNGo+domains+in+Modernisation+Platform)
+- [Azure/HMPP File Shares](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/5343248588/Azure+HMPP+File+Shares)
+- [How to get an AZURE/HMPP account (used by users when submitting requests)](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/4750475488/DSO+How-To+-+get+an+azure.noms.root+or+azure.hmpp.root+domain+account)
+- [HMPPS Jump Servers in Modernisation Platform](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/5603557440/HMPPS+Jump+Servers+in+Modernisation+Platform)
