@@ -6,7 +6,6 @@ review_in: 6 months
 ---
 
 # <%= current_page.data.title %>
-## About
 
 This runbooks page contains guidance on regular tasks that the Platform Operations support role may be expected to perform in relation to Entra ID (Azure AD) and related services.
 
@@ -28,6 +27,10 @@ These requests are typically raised via the [#ask-digital-studio-ops](https://mo
 
 - Drop the provided username in the search bar, tick the checkbox next to the user, and select **Select** from the bottom menu.
 
-Once added, inform the user that they may have to wait as long as 6 hours for the change to take effect. 
+Once added, inform the user that they may have to wait as long as 6 hours for the change to take effect.
 
-
+> **NOTE** - This approach will only work if the `@justice.gov.uk` name for the user (e.g. firstname.surname) is less than or equal to 16 characters.
+If it exceeds 16 characters, it is recommended that you add the user to the `ministryofjustice/nomis-access` Github team - ask the user to provide their Github ID for this approach.
+The Github ID must also be 16 characters or less (if this is not the case, point the user to [this guide](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/4787830887/DSO+How-To+-+get+access+to+NOMIS+AWS+accounts?xpis=eyJicmlkZ2UiOiJxdWlja0ZpbmQiLCJpZCI6IjE3ODc1NjYzODcxMzIiLCJzb3VyY2UiOiJjb25mbHVlbmNlIn0%3D) in order to change it.)
+This approach may also take up to 6 hours in order to take effect.
+If the user is either working for Syscon, or is a maintainer of the Infrastructure, you would need to consider adding them to a different team than `nomis-access` - see [this guide](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/4787830887/DSO+How-To+-+get+access+to+NOMIS+AWS+accounts?xpis=eyJicmlkZ2UiOiJxdWlja0ZpbmQiLCJpZCI6IjE3ODc1NjYzODcxMzIiLCJzb3VyY2UiOiJjb25mbHVlbmNlIn0%3D) for more info.
