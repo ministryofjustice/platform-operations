@@ -66,3 +66,61 @@ Some support requests or platform alerts may require a considerable investment o
 - A routine, regular task that has not yet been either automated or added to the runbooks, and requires a support team member to perform the task manually. Documenting the process should be covered as part of the created ticket.
 
 If you want to add a support ticket in the Platform Operations Jira board, create it under parent [EPIC `PlatOps Support Rota & Ad-Hoc Requests`](https://dsdmoj.atlassian.net/browse/PLAT-149) and assign/place in sprint appropriately.
+
+### Alerting Slack Channels
+
+Whilst on support, you should keep an eye on the following Slack channels, which are used for monitoring and alerting:
+
+**Non-Prod Alarm Slack Channels**
+
+Contains alerts from AWS modernisation platform development, test and pre-production accounts.
+
+* `#az_noms_dev_test_environments_alerts` - For DSO DevTest Azure alerts
+* `#dso_alerts_pipeline` - For scheduled tasks or pipeline failures within the DSO estate
+* `#dba_alerts_devtest` - For non-production DBA alerts within the DSO Estate
+
+The following are non-production alerting channels for projects that DSO supports:
+
+* `#hmpps_domain_services_alarms_non_prod` (shared AD/Remote Desktop resources)
+* `#hmpps_oem_alarms_non_prod`
+* `#nomis_alarms_non_prod`
+* `#nomis_combined_reporting_alarms_non_prod`
+* `#nomis_data_hub_alarms_non_prod`
+* `#oasys_alarms_non_prod`
+* `#oasys_national_reporting_alarms_non_prod`
+
+**Production Alarm Slack Channels**
+
+Contains alerts from AWS modernisation platform production accounts and NOMS Production Azure Account.
+
+* `#az_noms_production_1_alerts` - For DSO production Azure alerts
+* `#az_noms_notifications` - Receives notifications for NOMS production (Azure)
+* `#corporate_staff_rostering_alarms` - Alarms for CSR
+* `#dba_alerts_prod` - For production DBA alerts within the DSO Estate
+
+The following are production alerting channels for projects that DSO supports:
+
+* `#hmpps_domain_services_alarms_prod` (shared AD/Remote Desktop resources)
+* `#hmpps_oem_alarms_prod`
+* `#nomis_alarms_prod`
+* `#nomis_combined_reporting_alarms_prod`
+* `#nomis_data_hub_alarms_prod`
+* `#oasys_alarms_prod`
+* `#oasys_national_reporting_alarms_prod`
+* `#planetfm_alarms`
+* `#prison_retail_alarms`
+
+**Daily Security Hub Notification**
+
+Within the `#dso_alerts_pipeline` channel, we receive daily notifications of any new Critical/High Security Hub alerts for projects/environments in AWS that we manage. These are generated via the following [Github Workflow](https://github.com/ministryofjustice/dso-modernisation-platform-automation/blob/main/.github/workflows/security_hub_alerting.yml).
+You should keep an eye on this and review as appropriate
+
+### Email Notifications
+
+Occassionally, we will receive notifications via email to our Digital Studio Operations and Team Migrations inboxes - examples of this include:
+
+* AWS Health Notifications (e.g. service outages, maintenance notifications)
+* Azure Notifications (e.g. security recommendations, outages, weekly digests)
+
+Please ensure that you monitor emails throughout the day, and respond as appropriate. If you are unsure of how to proceed following an email, if there is a major service outage, or if you suspect you do not have access to these email inboxes, please contact
+the team by sending a message to the [#internal-platform-operations](https://moj.enterprise.slack.com/archives/C0B8HUJCK7S) channel (tagging `@platform-operations`)
