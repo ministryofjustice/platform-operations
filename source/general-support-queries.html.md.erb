@@ -1,0 +1,52 @@
+---
+title: General Support Queries
+weight: 15
+last_reviewed_on: 2026-08-21
+review_in: 6 months
+---
+
+# <%= current_page.data.title %>
+
+## Extend NDMIS PreProd for ETL Runs
+
+Use this runbook when NDMIS teams request that the legacy AWS PreProd environment and databases remain running outside their normal operating hours, usually for additional ETL runs.
+
+### Prerequisites
+
+- Confirm the first and final dates the environment is required
+- Confirm whether the request includes the night after the final named day
+- Use the legacy Probation AWS login method. AWS SSO does not work for this account
+- Log in to the `01058...` AWS account with the administrator role
+
+### Create the calendar event
+
+1. Sign in to the AWS Management Console using the legacy Probation login
+2. Confirm that you are in the `01058...` account and using the administrator role
+3. Open **AWS Systems Manager**
+4. Select **Change Calendar**
+5. Open the `delius-pre-prod-calendar` calendar
+6. Create a new calendar event
+7. Give the event a descriptive name, such as `Extended PreProd for ETL run`
+8. Set the event to begin at approximately **12:00 Europe/London** on the first requested day. During BST, this is **12:00 UTC**
+9. Set the event to end at **13:00 Europe/London on the day after the final requested night**
+10. Save the event
+
+For example, if PreProd must remain available on Tuesday night, create an event from Tuesday at 13:00 until Wednesday at 13:00. If it must remain available through Friday night, end the event on Saturday at 13:00
+
+![extend-etl-runs](/images/etl-runs.png)
+
+
+> **Important:** Use the `Europe/London` calendar timezone and check the UTC conversion displayed by AWS. During BST, 13:00 Europe/London is 12:00 UTC. Account for GMT/BST clock changes when scheduling events.
+
+### Verify the change
+
+1. Reopen the `delius-pre-prod-calendar` calendar
+2. Confirm that the event appears on the expected dates
+3. Check the event name, start time, end time and timezone
+4. Confirm that the event covers every requested overnight period
+5. Reply to the requester confirming that the extension has been added to the calendar
+
+---
+
+## Change the NDMIS BO Banner Schedule
+
