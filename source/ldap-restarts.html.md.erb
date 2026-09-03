@@ -28,6 +28,21 @@ The objective is to ensure that restarts are performed in a predictable manner a
 
 ---
 
+## AWS Maintenance Notification
+
+Notifications for scheduled AWS maintenance i.e. **ECS Fargate task patching and retirement**, are sent to the `#probation-migration-team` Slack channel.
+
+These notifications are usually sent around one week before the scheduled update and identify the affected environments and ECS services.
+
+The LDAP restart and cache-warming procedure must be completed **before** the scheduled AWS maintenance begins.
+
+Mention the restarts in the NDST stand up prior to doing them, informing them of when they will take place and what environments, so that the relevant notifications and banners can be updated.
+
+![aws-notif resources](/images/aws-notifs.png)
+
+
+---
+
 ## AWS Environment Reference
 
 LDAP is deployed across the following AWS environments:
@@ -37,9 +52,8 @@ LDAP is deployed across the following AWS environments:
 | Stage/PreProd | --------1417  | delius-core-stage-cluster, delius-core-preprod-cluster  |
 | Production    | --------5573  | delius-core-prod-cluster                                |
 
----
 
-## Prerequsites
+## Prerequisites
 
 - Disconnect from the VPN for faster response times
 - Login in to AWS in the console via `aws sso login --profile delius-core-[env]`
@@ -77,7 +91,7 @@ The event details provide information about:
 - Any actions that need to be taken
 - The affected resources, which identify the ECS resources impacted by the scheduled change
 
-![Container cw-dashbaord-scheduled-changes](/images/health-dashboard.png)
+![Container cw-dashboard-scheduled-changes](/images/health-dashboard.png)
 
 ### Identify the LDAP Resource
 
@@ -87,7 +101,7 @@ In the **Affected resources** section:
 2. Select the LDAP resource
 3. This will take you to the relevant ECS cluster
 
-![Container dashbaord-affected resources](/images/dashbaord-affected-resources.png)
+![Container dashboard-affected resources](/images/dashboard-affected-resources.png)
 
 
 From the clusters, identify the appropriate environment, depending on which one you are working on:
@@ -176,6 +190,10 @@ Once the new LDAP task is running, connect to the container from the terminal to
 
 In your terminal, follow the steps below:
 
+```
+$ ecsgo -p delius-core-[env]
+```
+
 ![Container select-cluster](/images/select-stage-cluster.png)
 ![Container select-service](/images/select-service.png)
 ![Container select-task](/images/select-task.png)
@@ -201,7 +219,7 @@ Confirm that:
 
 - The ECS service has **1 desired task**
 - The LDAP task is **running**
-- The task is healhty
+- The task is healthy
 - Cache warming completed successfully
 - There are no unexpected errors or task restarts
 
