@@ -50,3 +50,48 @@ For example, if PreProd must remain available on Tuesday night, create an event 
 
 ## Change the NDMIS BO Banner Schedule
 
+---
+
+## Recycling NOMIS Web Instances
+
+Occasionally, we have a need to recycle NOMIS Web instances (for example, due to AWS Health notifications informing us that the underlying EC2 instance is due to maintenance - if you are on support, please ensure that you stay on top of [email notifications](./platform-operations-support.html#email-notifications))
+
+These are the steps you would need to follow in order to successfully recycle a NOMIS Web Instance:
+
+- Within the AWS console, stop the relevant instance(s) by selecting the instance, then selecting Instance State > Stop Instance
+- Once AWS has stopped the instance, the autoscaling group will kick in and provision a new instance
+  - Please note: If you are recycling an instance within the `prod-nomis-web-b` ASG, the [SHA for the user data is pinned](https://github.com/ministryofjustice/modernisation-platform-environments/blob/d7305162de3794f77e5e1e74845b858b2850ea35/terraform/environments/nomis/locals_production.tf#L285-L289) - this is intentional, to ensure that any undesired changes within the `main` branch are not released to Production
+  - If you have a need to update the SHA/pull in more recent changes ahead of the recycle of a `prod-nomis-web-b` instance, you can first test by provisioning an instance for `prod-nomis-web-a`
+  - This uses the [main](https://github.com/ministryofjustice/modernisation-platform-environments/blob/d7305162de3794f77e5e1e74845b858b2850ea35/terraform/environments/nomis/locals_production.tf#L243-L247) branch, and primarily exists to give us the option for blue/green/parallel deployments. As such, it can be leveraged for testing purposes.
+  Assuming the instance provisions successfully, take a note of the most recent SHA commit, and update `prod-nomis-web-b` to point to this as appropriate.
+- Once the new instance is running, connect to the AWS instance via SSM (for guidance on how to connect to an EC2 instance, see [this page](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/3774644247/Accessing+ec2+Instances+in+the+NOMIS+Environment+on+Mod+Platform))
+- Run `tail -f /var/log/messages` and follow the logs on the instance
+  - This EC2 instance will run all of the ansible roles listed in [server_type_nomis_web.yml](https://github.com/ministryofjustice/modernisation-platform-configuration-management/blob/main/ansible/group_vars/server_type_nomis_web.yml#L4)
+  - One of the key roles here is the [nomis-weblogic](https://github.com/ministryofjustice/modernisation-platform-configuration-management/tree/main/ansible/roles/nomis-weblogic) role - this is used to implement the required configuration for NOMIS (e.g. creating forms servers, installing nomis releases etc)
+  - It will usually take somewhere between 60 and 90 minutes for all of the relevant ansible tasks to complete running on the instance - keep an eye out for output similar to the following:
+
+```
+PLAY RECAP *********************************************************************
+localhost : ok=352 changed=191 unreachable=0 failed=0 skipped=124 rescued=0 ignored=2
+
+# Cleanup
+ansible-ec2provision.sh end
+post-ec2provision.sh start
+# running: /usr/local/bin/autoscaling-lifecycle-ready-hook.sh
+post-ec2provision.sh end
+
+#############################################################
+```
+- Assuming this has completed as expected, you should then run `service weblogic-all status` to check the status of the weblogic services. All services should be reporting as OK and/or RUNNING
+  - The weblogic-all init.d configuration can be found [here](https://github.com/ministryofjustice/modernisation-platform-configuration-management/blob/main/ansible/roles/nomis-weblogic/templates/10.3/etc/init.d/weblogic-all) - see also: [weblogic-healthcheck](https://github.com/ministryofjustice/modernisation-platform-configuration-management/blob/main/ansible/roles/nomis-weblogic/templates/10.3/etc/init.d/weblogic-healthcheck)
+- You may also want to consider connecting to the NOMIS Client EC2 instance via [Fleet Manager](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/3774644247/Accessing+ec2+Instances+in+the+NOMIS+Environment+on+Mod+Platform#Connect-to-Windows-ec2---Fleet-Manager-(preferred)) and ensuring that the application responds
+- To do this, open internet explorer and access the following (replacing the URL paths/localhost values with the IP Address of your instance)
+  - [NOMIS App URL](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/4390715741/Accessing+Classic+NOMIS+in+Modernisation+Platform#Nomis-URLs)
+  - [NOMIS Admin Console](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/5341020188/Nomis+Weblogic+12c#Accessing-Weblogic-Admin-Console) (See the localhost value and update as appropriate)
+  - Whilst you don't need to log into these services at this point, if you wish to do so, please contact another platform operations team member for guidance on where to obtain the relevant credentials (if you are unsure where they reside)
+- At this point, you should reach out to the relevant DBAs for NOMIS to inform them that the instance recycle has completed successfully - provide them with the new Instance ID and IP Address, so that they can perform their relevant tests
+  - To do this, it is easiest to contact them via the `#shef_dba` slack channel
+
+Once the DBAs have completed their relevant testing, the activity can be considered complete.
+
+---
