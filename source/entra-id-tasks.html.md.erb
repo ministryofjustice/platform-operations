@@ -1,7 +1,7 @@
 ---
 title: Azure Entra ID Tasks
 weight: 13
-last_reviewed_on: 2026-08-19
+last_reviewed_on: 2026-09-04
 review_in: 6 months
 ---
 
@@ -34,3 +34,25 @@ If it exceeds 16 characters, it is recommended that you add the user to the `min
 The Github ID must also be 16 characters or less (if this is not the case, point the user to [this guide](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/4787830887/DSO+How-To+-+get+access+to+NOMIS+AWS+accounts?xpis=eyJicmlkZ2UiOiJxdWlja0ZpbmQiLCJpZCI6IjE3ODc1NjYzODcxMzIiLCJzb3VyY2UiOiJjb25mbHVlbmNlIn0%3D) in order to change it.)
 This approach may also take up to 6 hours in order to take effect.
 If the user is either working for Syscon, or is a maintainer of the Infrastructure, you would need to consider adding them to a different team than `nomis-access` - see [this guide](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/4787830887/DSO+How-To+-+get+access+to+NOMIS+AWS+accounts?xpis=eyJicmlkZ2UiOiJxdWlja0ZpbmQiLCJpZCI6IjE3ODc1NjYzODcxMzIiLCJzb3VyY2UiOiJjb25mbHVlbmNlIn0%3D) for more info.
+
+### Reset user MFA for App Insights access (HMPPS directory)
+
+If a request lands in the `#ask-digital-studio-ops` Slack channel to reset a user's MFA for App Insights access, this can be actioned as follows:
+
+#### Steps
+
+- Log into the [Azure Portal](https://portal.azure.com/#home)
+
+- In user profile (top right) select **Switch Directory** and select the **HMPPS** directory from list below. Hit `Switch`.
+
+- Search for `Microsoft Entra Privileged Identity Management` service and select it.
+
+- Click Tasks on left-hand menu, then select **My roles**.
+
+- Select Role `Global Administrator` and click **Activate**.
+
+- Provide a Reason in the freetext box (ie `ressetting user MFA for App Insights access`) and click **Activate**.
+
+- Search for the user in the search bar, select their name, and click **Require re-register multifactor authentication**.
+
+- Inform the user that they will be prompted to reset their MFA the next time they log in to App Insights.
