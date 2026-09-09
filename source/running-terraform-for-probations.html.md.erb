@@ -1,0 +1,33 @@
+---
+title: Running Terraform for Probations
+weight: 16
+last_reviewed_on: 2026-09-09
+review_in: 6 months
+---
+
+# <%= current_page.data.title %>
+
+> **Work in progress** - As we are still in the early stages of the Platform Operations team, this page will be updated as we continue to refine our support processes and gain familiarity with Probations.
+
+### Running Terraform for Probations
+
+Guidance for running terraform locally in legacy accounts can be found [here](https://dsdmoj.atlassian.net/wiki/spaces/NH/pages/3834708052/Running+Terraform+locally+in+legacy+accounts) - note that there are different methods for this, depending on which repository you are working with:
+
+- [Overview](https://dsdmoj.atlassian.net/wiki/spaces/NH/pages/3834708052/Running+Terraform+locally+in+legacy+accounts#Overview): Ensure that you have generated the relevant access keys to work with the relevant Probations Service(s) - you may want to consider saving the code snippet from this section into a bash script on your machine, then creating an alias to run it for you.
+  - This assumes that you have been set up with an AWS Account for hmpps-probations. If you do not have this, speak to a member of the team
+- [Method 1](https://dsdmoj.atlassian.net/wiki/spaces/NH/pages/3834708052/Running+Terraform+locally+in+legacy+accounts#Method-1---Delius%2C-Jitbit%2C-security-access-terraform%2C-hmpps-delius-bastion%2C-hmpps-vcms-terraform%2C-hmpps-mis-terraform-repo-fsx): Ensure that you have cloned the relevant repository, as well as the [hmpps-delius-pipelines](https://github.com/ministryofjustice/hmpps-delius-pipelines) and [hmpps-env-configs](https://github.com/ministryofjustice/hmpps-env-configs) repository at the same level, for example:
+
+```
+ls my_probations_folder/
+hmpps-delius-pipelines
+hmpps-env-configs
+hmpps-mis-terraform
+```
+
+_You should then set up the local aliases as outlined in the document, and attempt to run plan/apply commands as outlined_
+
+- [Method 2](https://dsdmoj.atlassian.net/wiki/spaces/NH/pages/3834708052/Running+Terraform+locally+in+legacy+accounts#Method-2---Alfresco%2C-hmpps-engineering-pipelines): Ensure that you have cloned the relevant environment and updated your ENVIRONMENT_NAME and COMPONENT values within the .env file as appropriate
+  - [hmpps-engineering-pipelines](https://github.com/ministryofjustice/hmpps-engineering-pipelines/tree/develop) leverages a [Makefile](https://github.com/ministryofjustice/hmpps-engineering-pipelines/blob/develop/Makefile) that can be used for various actions relating to Terraform, as well as docker-compose and ansible activities
+- [Method 3](https://dsdmoj.atlassian.net/wiki/spaces/NH/pages/3834708052/Running+Terraform+locally+in+legacy+accounts#Method-3---hmpps-delius-transit-gateway): Ensure that you have the [hmpps-delius-transit-gateway](https://github.com/ministryofjustice/hmpps-delius-transit-gateway) repository cloned - adapt the script as required depending on the environment that you are targeting
+
+_NOTE: Method 1 is the most commonly used method for Probations Terraform repositories. Method 2 pertains to the alfresco + hmpps-engineering-pipelines repos, and Method 3 pertains to the hmpps-delius-transit-gateway repository. If you are unsure which method to use, please reach out to a member of the team for guidance._
