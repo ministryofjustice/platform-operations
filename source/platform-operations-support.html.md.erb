@@ -1,7 +1,7 @@
 ---
 title: Platform Operations Support Role
 weight: 11
-last_reviewed_on: 2026-08-17
+last_reviewed_on: 2026-09-09
 review_in: 6 months
 ---
 
@@ -30,6 +30,8 @@ We use Slack emojis to indicate our assigned Support Role status. Primary is <im
 If you are the allocated engineer, but you are unable to fulfill the role for the day, please send a message to the [#internal-platform-operations](https://moj.enterprise.slack.com/archives/C0B8HUJCK7S) channel (tagging `@platform-operations`) and request that someone else takes on the role in your place.
 If the allocated Primary Engineer for the day has to change, please ensure that an override is added to the [daily support rota](https://moj-digital-tools.pagerduty.com/schedules/PAA4DKR), so that the new Primary Engineer is reflected, as this will ensure that they receive any relevant alerts throughout the course of the day.
 
+Our general support pattern is from 09:00 to 16:00 (though it should be noted that our PagerDuty rota runs from 08:00 to 16:00) - we do not currently have an on-call capability.
+
 ### Daily Concierge duties
 
 Below are some common support tasks that you would be expected to carry out throughout the course of the day:
@@ -52,6 +54,14 @@ Below are some common support tasks that you would be expected to carry out thro
 
 - **DSO Infra Azure AD User Management:** On Tuesday mornings, an [automated-user-management](https://github.com/ministryofjustice/dso-infra-azure-ad/blob/main/.github/workflows/automated-user-management.yml) will run - this detects any users who should be marked as "inactive", or any users who should be "deleted", and will generate PRs if appropriate.
 If today is a Tuesday, go to the [dso-infra-azure-ad](https://github.com/ministryofjustice/dso-infra-azure-ad/tree/main), ensure that the workflow has run successfully, and if there are any PRs that have been generated, review them.
+
+As it pertains to DSO services, supporting guidance for being on support can be found below:
+
+- [Common Concierge Tasks](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/3016654889/How+to+be+concierge#Common-Concierge-Tasks)
+- [Concierge Tasks](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/3016654889/How+to+be+concierge#Concierge-Tasks)
+- [DSO Self Service Guides](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/717357239/What+is+the+DSO+concierge+service)
+- [Handling PagerDuty Alarms](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/4570546216/Handling+Pagerduty+Alarms)
+- [Monitoring and Alerting](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/4289626807/Monitoring+and+Alerting)
 
 > **Note:** It is not expected that support team members will always be able to resolve all issues, but they should respond, and escalate issues to the appropriate team members where necessary.
 
