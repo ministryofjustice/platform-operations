@@ -17,6 +17,16 @@ We work closely with DBAs, Application Support Teams, HMPPS Devs, NART and the M
 
 Our team documentation and runbooks are hosted on GitHub Pages following the common tech docs GDS approach and can be found [here](https://runbooks.platform-operations.service.justice.gov.uk/).
 
+### Previewing local edits to documentation
+
+To run a local instance of the runbook site, ensure Docker is installed and running on your machine. Then, navigate to the root of the repository and run:
+
+```bash
+make preview
+```
+
+Once the container is running, you can preview your changes by opening a web browser and navigating to `http://localhost:4567`.
+
 ## Useful repository links
 
 | Name                                                                                                                                    | Description                                                                                        |
