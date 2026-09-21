@@ -50,6 +50,15 @@ For example, if PreProd must remain available on Tuesday night, create an event 
 
 ## Change the NDMIS BO Banner Schedule
 
+In the [#ask-probation-hosting](https://moj.enterprise.slack.com/archives/C032BQQHJE5) channel, we often receive requests from users asking us to change the schedule for the NDMIS BO Banner (for example, asking us to change the schedule from 5pm to 6pm) - in order to do this, you need to follow these steps:
+
+- Access the relevant Delius AWS Account (for example, if you have been asked to update the NDMIS BO Banner for Production, access the Delius Prod AWS Account)
+- Within AWS CodeBuild, find the relevant `delius-ENV-mis-lb-rule-mgmt-build` build project (for example, in Prod this would be: `delius-prod-mis-lb-rule-mgmt-build`)
+- Under "Project Details" you will find Environment Variables - this will contain a `STOP_TIME` variable - edit the Environment configuration, and update the `STOP_TIME` variable to the requested time (for example, if the existing value is `17:00` and the requested time is `18:00`, update as appropriate)
+- Under "Build Triggers" you will see a `delius-ENV-mis-lb-management-stop-event-rule` trigger, which will have an associated schedule expression - update this as appropriate (PLEASE NOTE: The schedule expression will be GMT, so if you were looking to set the schedule to `18:00` BST, set this to the corresponding GMT)
+
+Once this is complete, respond to the user in Slack and inform them that the banner will be displayed at the intended time.
+
 ---
 
 ## Recycling NOMIS Web Instances
