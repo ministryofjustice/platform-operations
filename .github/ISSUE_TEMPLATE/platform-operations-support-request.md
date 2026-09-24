@@ -2,7 +2,7 @@
 name: Platform Operations Support Request
 about: This template is to be used to allow users to raise support requests for the Platform Operations team.
 title: ''
-labels: needs_triage, support_request
+labels: support
 assignees: ''
 
 ---
@@ -16,6 +16,8 @@ assignees: ''
 <!--- Full name or acronym(s) for the project(s) this issue relates to -->
 
 ## Project environment
+
+<!--- Please update the relevant environment(s) below, so that the square brackets contain [X] instead of the empty [ ] -->
 
 - [ ] Dev / Development
 - [ ] Test / Testing
