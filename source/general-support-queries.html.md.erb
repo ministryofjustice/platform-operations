@@ -104,3 +104,90 @@ post-ec2provision.sh end
 Once the DBAs have completed their relevant testing, the activity can be considered complete.
 
 ---
+
+## Increasing Disk space
+
+In the event that you receive an alarm for low disk space and need to resize, please see the [EC2 free-disk-space-low alarm](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/4289822860/EC2+free-disk-space-low+alarm) page as a first step, as this provides general guidance on where to check. Also, see how to [free up diskspace in FixNGo](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/3902734586/Linux+-+free+up+disk+space+in+FixNGo), and
+how to [increase database disk size in MOD Platform](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/4468211902/Increase+Database+Disk+Size+in+Mod+Platform) (please note that this guide is generally for Linux EC2 instances)
+
+If you need to increase the disk space for a Windows instance (for example, the Jump Servers for Domain Services) please follow these steps:
+
+- Make the relevant [Terraform](https://dsdmoj.atlassian.net/wiki/spaces/DSTT/pages/4468211902/Increase+Database+Disk+Size+in+Mod+Platform) changes within the [modernisation-platform-environments](https://github.com/ministryofjustice/modernisation-platform-environments) repository - see [this PR](https://github.com/ministryofjustice/modernisation-platform-environments/pull/19510) as an example of the change you would need to make
+- Once the PR has been merged, ensure that the change is Terraform applied via the relevant github actions workflow - then use the AWS console to check that the EBS volume has been updated
+- Connect to the appropriate EC2 instance, and run `Get-PSDrive -PSProvider FileSystem` to check the current used and free capacity for the instance - this will return something like:
+
+```
+Name           Used (GB)     Free (GB) Provider      Root                                                         CurrentLocation
+----           ---------     --------- --------      ----                                                         ---------------
+C                 181.02         18.98 FileSystem    C:\                                                         Windows\system32
+```
+
+- Run `Get-Disk` - this should confirm that Windows sees the updated disk as per the EBS volume
+
+```
+Number Friendly Name     OperationalStatus  Size
+------ -------------     -----------------  ----
+0      NVMe Amazon EBS  Online             400 GB
+
+```
+
+- Then, run `Get-Partition -DiskNumber 0` - you will most likely see from this output that, whilst Windows sees the full disk allocation, the partition you are looking for is still at its original value
+
+```
+Disk Number  PartitionNumber  DriveLetter  Size
+-----------  ---------------  -----------  ----
+0            1                C            200 GB
+```
+
+- Assuming you wish to extend the C: drive, check how large this can become by running `Get-PartitionSupportedSize -DriveLetter C` - this will return something like:
+
+```
+SizeMin      SizeMax
+-------      -------
+209715200    429496729600
+```
+
+- Run the following commands to extend the relevant drive to the maximum value:
+
+```
+$size = (Get-PartitionSupportedSize -DriveLetter C).SizeMax
+Resize-Partition -DriveLetter C -Size $size
+```
+
+- Run `Get-Volume -DriveLetter C` to verify that the change has taken effect (you can also re-run `Get-PSDrive -PSProvider FileSystem` to double check)
+
+### Check disk utilisation on a Windows instance
+
+Before extending a disk for a Windows EC2 instance, it may be worth checking the current disk usage to see if there is any space that can be freed up. You can do this by running the following commands in PowerShell:
+
+- `Get-PSDrive -PSProvider FileSystem` - shows the overall used and free capacity
+- Then, run the following command to find the biggest folders within a relevant drive (in this example, we check the C: drive - note that this command may take a couple of minutes to fully execute)
+
+```
+Get-ChildItem C:\ -Directory -Force -ErrorAction SilentlyContinue |
+    ForEach-Object {
+        $size = (Get-ChildItem $_.FullName -File -Recurse -Force -ErrorAction SilentlyContinue |
+                 Measure-Object Length -Sum).Sum
+        [PSCustomObject]@{
+            Folder = $_.FullName
+            SizeGB = [math]::Round($size / 1GB, 2)
+        }
+    } |
+    Sort-Object SizeGB -Descending |
+    Select-Object -First 20
+```
+
+- This will return a list of folders in order of their size - you can then inspect each folder to see what files are taking up the most space, and whether any of them can be deleted or moved to free up disk space - for example:
+
+```
+Get-ChildItem "C:\Documents and Settings" -Directory -Force -ErrorAction SilentlyContinue |
+    ForEach-Object {
+        $size = (Get-ChildItem $_.FullName -File -Recurse -Force -ErrorAction SilentlyContinue |
+                 Measure-Object Length -Sum).Sum
+        [PSCustomObject]@{
+            Folder = $_.FullName
+            SizeGB = [math]::Round($size / 1GB, 2)
+        }
+    } |
+    Sort-Object SizeGB -Descending
+```
