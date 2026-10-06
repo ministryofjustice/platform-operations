@@ -1,0 +1,67 @@
+---
+title: Lambda For Triggering Github Actions Workflows
+weight: 17
+last_reviewed_on: 2026-10-06
+review_in: 6 months
+---
+
+# <%= current_page.data.title %>
+
+### Lambda for triggering Github Actions Workflows
+
+We use various Github Actions workflows throughout our estate to automate various tasks. Historically, when we wanted a job to be triggered on a schedule, we would leverage the [schedule event](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule) within the workflow itself.
+However, Github themselves currently state that:
+
+> The schedule event can be delayed during periods of high loads of GitHub Actions workflow runs. High load times include the start of every hour. If the load is sufficiently high enough, some queued jobs may be dropped. To decrease the chance of delay, schedule your workflow to run at a different time of the hour.
+
+As such, we have encountered issues whereby some of our workloads have either been executed later than expected, or have not been executed at all. To mitigate this, we have created our own configuration for triggering Github Actions Workflows on a schedule, which is not reliant on the Github Actions schedule event. This is achieved by leveraging a Lambda function that can be triggered on a schedule via an EventBridge rule, which then triggers the relevant Github Actions workflow via the Github API.
+
+Within the Platform Operations Production AWS Account, we have configured:
+
+- An AWS Lambda, written in Python, which is responsible for triggering the relevant Github Actions workflow via the Github API (provided the relevant arguments are supplied)
+- An AWS EventBridge Scheduler, which allows us to create events for triggering the Lambda on a schedule
+- Outbound Identity Federation, allowing us to utilise STS (and leverage [OCTO STS](https://developer-portal.service.justice.gov.uk/github/github-authentication-for-automated-workloads))
+- All supporting IAM, KMS and SQS components as appropriate
+
+The terraform module configuration for this can be found [here](https://github.com/ministryofjustice/modernisation-platform-environments/tree/main/terraform/modules/github_lambda) - this is then leveraged within the [platform-operations](https://github.com/ministryofjustice/modernisation-platform-environments/tree/main/terraform/environments/platform-operations) environment folder.
+
+### Utilising the Lambda to manage Github Action invocations
+
+Assuming that you wish to add a new schedule for your Github Actions workflow (using this configuration) you would need to perform the following steps:
+
+- In the repository where the workflow resides, ensure that you have added the [.github/chainguard/platops.sts.yaml](https://github.com/ministryofjustice/hosting-migrations/blob/main/.github/chainguard/platops.sts.yaml) file
+- Additionally, if your workflow still contains the schedule event configuration, remove it
+- In [locals_production.tf](https://github.com/ministryofjustice/modernisation-platform-environments/blob/main/terraform/environments/platform-operations/locals_production.tf) within the platform-operations directory for the modernisation-platform-environments repository, within the [github_workflows](https://github.com/ministryofjustice/modernisation-platform-environments/blob/ab58e108463230b05e94856ee4e82b6ef006ad8f/terraform/environments/platform-operations/locals_production.tf#L16-L36) config, add the following:
+
+```
+repo-name-job-name = {
+        identity = "platops"
+        inputs   = {}
+
+        ref      = "main" # The branch on which the workflow resides
+        repo     = "reponame" # The repo in which the workflow resides
+        schedule = "cron(30 6 ? * MON-FRI *)" # The schedule you wish to trigger the job on
+        timezone = "Europe/London"
+        workflow = "workflow.yml" # The workflow you wish to trigger
+}
+```
+
+- Example configuration can be seen [here](https://github.com/ministryofjustice/modernisation-platform-environments/blob/ab58e108463230b05e94856ee4e82b6ef006ad8f/terraform/environments/platform-operations/locals_production.tf#L17-L26) - but please note that there is a 64 character limit, and the [project_name](https://github.com/ministryofjustice/modernisation-platform-environments/blob/ab58e108463230b05e94856ee4e82b6ef006ad8f/terraform/environments/platform-operations/main.tf#L54) will get appended to the heading for the map (e.g. the project name would get appended to `repo-name-job-name`)
+- Raise a PR to be reviewed by the Platform Operations team, and once approved, proceed with the merge into main
+- Ensure that the [platform-operations workflow](https://github.com/ministryofjustice/modernisation-platform-environments/actions/workflows/platform-operations.yml) within this repository runs successfully, and if the Terraform plan looks as expected, go ahead with the apply
+- Once this is complete, the relevant configuration will be in place - and your job should be executed on the schedule you have defined
+- If you want to test before then, you can either adjust the schedule, or (assuming you have permissions):
+    - Access the Platform Operations Production AWS account
+    - Navigate to AWS Lambda, and select the `github-actions-trigger` Lambda
+    - Select the `Test` tab, and create a new test event with the following configuration (update repo/ref/workflow as appropriate):
+
+```
+{
+  "identity": "platops",
+  "repo": "reponame",
+  "ref": "main",
+  "workflow": "workflow.yml"
+}
+```
+
+- Select `Test` to invoke the Lambda, which should trigger the relevant Github Actions workflow
