@@ -4,4 +4,4 @@ issuer: https://a1a179eb-3aa4-4238-bce7-038c1ad636bd.tokens.sts.global.api.aws
 subject: arn:aws:iam::192445490380:role/github-project-issue-generator-lambda
 
 permissions:
-  actions: write
+  issues: write
