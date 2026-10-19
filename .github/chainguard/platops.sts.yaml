@@ -1,0 +1,7 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/octo-sts/app/refs/heads/main/pkg/octosts/octosts.TrustPolicy.json
+
+issuer: https://a1a179eb-3aa4-4238-bce7-038c1ad636bd.tokens.sts.global.api.aws
+subject: arn:aws:iam::192445490380:role/github-actions-lambda
+
+permissions:
+  actions: write
